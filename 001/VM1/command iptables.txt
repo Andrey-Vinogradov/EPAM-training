@@ -1,0 +1,19 @@
+***разрешаем установленные подключения
+iptables -A INPUT -p all -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -p all -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -p all -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+***открываем доступ из внутренней сети во внешнюю
+iptables -A FORWARD -i enp0s8 -o enp0s3 -j ACCEPT
+
+***закрываем доступ из внешней сети в локальную
+iptables -A FORWARD -i enp0s3 -o enp0s8 -j REJECT
+
+***закрываем доступ VM3 во внешнюю сеть
+iptables -A FORWARD -i 192.168.56.103 -o enp0s8 -j REJECT
+
+***включаем NAT
+iptables -t nat -A POSTROUTING -o enp0s3 -s 192.168.56.0/24 -j MASQUERADE
+
+***Сохраняем правила для постоянного использования
+/sbin/iptables-save  > /etc/sysconfig/iptables
